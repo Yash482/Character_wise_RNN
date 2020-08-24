@@ -1,9 +1,8 @@
 import tensorflow as tf
 
-
 def build_inputs(n_seq, seq_len):
-    #here we define the placeholders for the inputs and targets
-    #we also define the keep prob for the dropout layer
+    # define the placeholders for the inputs and targets
+    # define the keep prob for the dropout layer
     inputs = tf.placeholder(tf.int32, [n_seq, seq_len], name = 'inputs')
     targets = tf.placeholder(tf.int32, [n_seq, seq_len], name = 'targets')
     
