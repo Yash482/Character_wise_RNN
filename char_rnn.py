@@ -12,6 +12,7 @@ vocab_to_int = {c:i for i,c in enumerate(vocab)}
 int_to_vocab = dict(enumerate(vocab))
 encoded_text = np.array([vocab_to_int[c] for c in text], dtype = np.int32)
 
+
 #encoded_text = encoded_text[:100000]
 #encoded_text = encoded_text.reshape((10, -1))
 
@@ -44,42 +45,44 @@ from get_output_and_loss import build_loss, build_optimizer, build_output
 
 #Building our model
 class CharRNN:
-    def __init__(self, num_classes, n_seq= 64, seq_len= 50, lstm_size= 128, num_layers= 2, lr= 0.001, grad_clip= 5, sampling= False):
-        if sampling== True:
-            n_seq, seq_len = 1,1
+    
+    def __init__(self, num_classes, n_seq=64, seq_len=50, 
+                       lstm_size=128, num_layers=2, lr=0.001, 
+                       grad_clip=5, sampling=False):
+    
+        # When we're using this network for sampling later, we'll be passing in
+        # one character at a time, so providing an option for that
+        if sampling == True:
+            n_seq, seq_len = 1, 1
         else:
             n_seq, seq_len = n_seq, seq_len
+
+        tf.reset_default_graph()
+        
+        # Build the input placeholder tensors
         self.inputs, self.targets, self.keep_prob = build_inputs(n_seq, seq_len)
+
+        # Build the LSTM cell
         cell, self.initial_state = build_lstm(lstm_size, num_layers, n_seq, self.keep_prob)
-        
-        #Run data thru RNN layers
-        
-        #one hot inputs
+
+        ### Run the data through the RNN layers
+        # First, one-hot encode the input tokens
         x_one_hot = tf.one_hot(self.inputs, num_classes)
-        #collect seq of outputs from lstm
-        outputs, state = tf.nn.dynamic_rnn(cell, x_one_hot, initial_state = self.initial_state)
+        
+        # Run each sequence step through the RNN and collect the outputs
+        outputs, state = tf.nn.dynamic_rnn(cell, x_one_hot, initial_state=self.initial_state)
         self.final_state = state
         
-        #get softmax prediction and logits
-        self.prediction, self.logits = build_output(outputs, in_size = lstm_size, out_size = num_classes)
+        # Get softmax predictions and logits
+        self.prediction, self.logits = build_output(outputs, lstm_size, num_classes)
         
-        #get loss and optimizer
+        # Loss and optimizer (with gradient clipping)
         self.loss = build_loss(self.logits, self.targets, lstm_size, num_classes)
         self.optimizer = build_optimizer(self.loss, lr, grad_clip)
-        
-
 
 
 
     
-
-
-
-
-
-
-
-
 
 
 
