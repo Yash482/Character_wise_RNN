@@ -38,6 +38,11 @@ batches = get_batches(encoded_text, n_seq = 8, seq_length =50)
 x, y = next(batches)
 #now batches are ready
 
+from get_inputs import build_inputs
+from get_lstm import build_lstm
+
+
+
 
 
 
